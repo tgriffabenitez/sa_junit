@@ -17,8 +17,15 @@ class CuentaTest {
         String esperado = "Andrés";
         String real = cuenta.getNombre();
 
-        assertNotNull(real);
-        assertEquals(esperado, real);
+        /*
+         * A los asserts se les puede pasar un parametro (tiene que ser el ultimo) que es un mensaje
+         * que se muestra en caso de que el assert falle. Es util para saber que assert fallo y por que
+         *
+         * Las buenas practicas indican que este mensaje tiene que se pasado como una funcion lambda,
+         * de esta forma, solo se crea el mensaje en caso de que el assert falle.
+         */
+        assertNotNull(real, () -> "La cuenta no puede ser nula");
+        assertEquals(esperado, real, () -> "El nombre de la cuenta no es el esperado");
         assertTrue(real.equals(esperado)); // Es lo mismo que hacer assertEquals(esperado, real);
     }
 
@@ -27,10 +34,10 @@ class CuentaTest {
         Cuenta cuenta = new Cuenta();
         cuenta.setSaldo(new BigDecimal("1000.12345"));
 
-        assertNotNull(cuenta.getSaldo());
-        assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
-        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
-        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0);
+        assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+        assertEquals(1000.12345, cuenta.getSaldo().doubleValue(), () -> "El saldo no es el esperado");
+        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0, () -> "El saldo no puede ser negativo");
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0, () -> "El saldo debe ser mayor a cero");
     }
 
     @Test
@@ -51,7 +58,7 @@ class CuentaTest {
          * el valor de los atributos, es decir: verifica que los nombres
          * y el saldo sean iguales. Es por eso que este metodo ahora devuelve True
          */
-        assertEquals(cuenta1, cuenta2);
+        assertEquals(cuenta1, cuenta2, () -> "Las cuentas no son iguales");
     }
 
     @Test
@@ -61,9 +68,9 @@ class CuentaTest {
         cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.debito(new BigDecimal(100));
 
-        assertNotNull(cuenta.getSaldo());
-        assertEquals(900, cuenta.getSaldo().intValue());
-        assertEquals("900.12345", cuenta.getSaldo().toPlainString());
+        assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+        assertEquals(900, cuenta.getSaldo().intValue(), () -> "El saldo no es el esperado");
+        assertEquals("900.12345", cuenta.getSaldo().toPlainString(), () -> "El saldo no es el esperado");
     }
 
     @Test
@@ -73,9 +80,9 @@ class CuentaTest {
         cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.credito(new BigDecimal(100));
 
-        assertNotNull(cuenta.getSaldo());
-        assertEquals(1100, cuenta.getSaldo().intValue());
-        assertEquals("1100.12345", cuenta.getSaldo().toPlainString());
+        assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+        assertEquals(1100, cuenta.getSaldo().intValue(), () -> "El saldo no es el esperado");
+        assertEquals("1100.12345", cuenta.getSaldo().toPlainString(), () -> "El saldo no es el esperado");
     }
 
     @Test
@@ -90,13 +97,13 @@ class CuentaTest {
          */
         Exception exception = assertThrows(DineroInsuficienteException.class, () -> {
             cuenta.debito(new BigDecimal(1500));
-        });
+        }, () -> "El saldo es menor al monto a debitar");
 
         String actual = exception.getMessage();
         String esperado = "Dinero insuficiente";
 
         // Comparo los mensajes del exception con el esperado
-        assertEquals(esperado, actual);
+        assertEquals(esperado, actual, () -> "El mensaje no es el esperado");
     }
 
     @Test
@@ -113,8 +120,8 @@ class CuentaTest {
         banco.setNombre("Banco del Estado");
         banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
 
-        assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
-        assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
+        assertEquals("9000.25", cuenta2.getSaldo().toPlainString(), () -> "El saldo de la cuenta2 no es el esperado");
+        assertEquals("1500.5", cuenta1.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
     }
 
     @Test
@@ -142,19 +149,19 @@ class CuentaTest {
         assertAll(
                 () -> {
                     // verifico que de la cuenta2 se resten 500 pesos
-                    assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
+                    assertEquals("9000.25", cuenta2.getSaldo().toPlainString(), () -> "El saldo de la cuenta2 no es el esperado");
                 },
                 () -> {
                     // verifico a la cuenta1 se sumen 500 pesos
-                    assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
+                    assertEquals("1500.5", cuenta1.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
                 },
                 () -> {
                     // verifico que el banco tenga 2 cuentas (cuenta1 y cuenta2)
-                    assertEquals(2, banco.getCuentas().size());
+                    assertEquals(2, banco.getCuentas().size(), () -> "El banco no tiene las cuentas esperadas");
                 },
                 () -> {
                     // verifico que el nombre del banco sea "Banco del Estado"
-                    assertEquals("Banco del Estado", cuenta1.getBanco().getNombre());
+                    assertEquals("Banco del Estado", cuenta1.getBanco().getNombre(), () -> "El nombre del banco no es el esperado");
                 },
                 () -> {
                     // verifico que el nombre de la cuenta1 sea "Andrés" con assertEquals
@@ -162,12 +169,12 @@ class CuentaTest {
                             .filter(c -> c.getNombre().equals("Andrés"))
                             .findFirst()
                             .get()
-                            .getNombre());
+                            .getNombre(), () -> "El nombre de la cuenta1 no es el esperado");
                 },
                 () -> {
                     // verifico que exista una cuenta con el nombre "Julian" con assertTrue
                     assertTrue(banco.getCuentas().stream()
-                            .anyMatch(c -> c.getNombre().equals("Julian")));
+                            .anyMatch(c -> c.getNombre().equals("Julian")), () -> "No existe la cuenta de Julián en el banco");
                 }
         );
     }
