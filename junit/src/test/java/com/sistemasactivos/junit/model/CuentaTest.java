@@ -1,5 +1,6 @@
 package com.sistemasactivos.junit.model;
 
+import com.sistemasactivos.junit.exception.DineroInsuficienteException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -63,5 +64,24 @@ class CuentaTest {
         assertNotNull(cuenta.getSaldo());
         assertEquals(1100, cuenta.getSaldo().intValue());
         assertEquals("1100.12345", cuenta.getSaldo().toPlainString());
+    }
+
+    @Test
+    void testDineroInsuficienteException() {
+        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+
+        /*
+        * El metodo assertThrows devuelve la excepcion que se espera que se lance, en este caso
+        * tiene que devolver una DineroInsuficienteException.
+        */
+        Exception exception = assertThrows(DineroInsuficienteException.class, () -> {
+            cuenta.debito(new BigDecimal(1500));
+        });
+
+        String actual = exception.getMessage();
+        String esperado = "Dinero insuficiente";
+
+        // Comparo los mensajes del exception con el esperado
+        assertEquals(esperado, actual);
     }
 }

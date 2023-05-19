@@ -1,5 +1,6 @@
 package com.sistemasactivos.junit.model;
 
+import com.sistemasactivos.junit.exception.DineroInsuficienteException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,13 @@ public class Cuenta {
         *
         * Por eso, tengo que asignar el valor devuelto por el metodo subtract
         */
-        this.saldo = this.saldo.subtract(monto);
+        BigDecimal nuevoSaldo = this.saldo.subtract(monto);
+
+        // verifico que el saldo no sea negativo, si lo es, lanzo una excepcion
+        if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0)
+            throw new DineroInsuficienteException("Dinero insuficiente");
+
+        this.saldo = nuevoSaldo;
     }
 
     public void credito(BigDecimal monto) {
@@ -37,7 +44,6 @@ public class Cuenta {
          */
         this.saldo = this.saldo.add(monto);
     }
-
 
 
 
