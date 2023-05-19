@@ -44,13 +44,13 @@ class CuentaTest {
         cuenta2.setSaldo(new BigDecimal("1000.12345"));
 
         /*
-        * El metodo assertEquals(cuenta1, cuenta2) compara las direcciones de memoria de los
-        * objetos intanciados.
-        *
-        * En este caso, como en la clase cuenta sobreescribi el metodo equals, ahora compara por
-        * el valor de los atributos, es decir: verifica que los nombres
-        * y el saldo sean iguales. Es por eso que este metodo ahora devuelve True
-        */
+         * El metodo assertEquals(cuenta1, cuenta2) compara las direcciones de memoria de los
+         * objetos intanciados.
+         *
+         * En este caso, como en la clase cuenta sobreescribi el metodo equals, ahora compara por
+         * el valor de los atributos, es decir: verifica que los nombres
+         * y el saldo sean iguales. Es por eso que este metodo ahora devuelve True
+         */
         assertEquals(cuenta1, cuenta2);
     }
 
@@ -85,9 +85,9 @@ class CuentaTest {
         cuenta.setSaldo(new BigDecimal("1000.12345"));
 
         /*
-        * El metodo assertThrows devuelve la excepcion que se espera que se lance, en este caso
-        * tiene que devolver una DineroInsuficienteException.
-        */
+         * El metodo assertThrows devuelve la excepcion que se espera que se lance, en este caso
+         * tiene que devolver una DineroInsuficienteException.
+         */
         Exception exception = assertThrows(DineroInsuficienteException.class, () -> {
             cuenta.debito(new BigDecimal(1500));
         });
@@ -135,25 +135,40 @@ class CuentaTest {
         // tranfiero 500 de la cuenta2 a la cuenta1
         banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
 
-        // verifico que de la cuenta2 se resten 500 y en la cuenta1 se sumen 500
-        assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
-        assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
-
-        // verifico que el banco tenga 2 cuentas (cuenta1 y cuenta2)
-        assertEquals(2, banco.getCuentas().size());
-
-        // verifico que el nombre del banco sea "Banco del Estado"
-        assertEquals("Banco del Estado", cuenta1.getBanco().getNombre());
-
-        // verifico que el nombre de la cuenta1 sea "Andrés" con assertEquals
-        assertEquals("Andrés", banco.getCuentas().stream()
-                .filter(c -> c.getNombre().equals("Andrés"))
-                .findFirst()
-                .get()
-                .getNombre());
-
-        // verifico que exista una cuenta con el nombre "Julian" con assertTrue
-        assertTrue(banco.getCuentas().stream()
-                .anyMatch(c -> c.getNombre().equals("Julian")));
+        /*
+         * Con el metodo assertAll() se ejecutan todos los asserts que estan dentro de este metodo
+         * de forma INDEPENDIENTE, es decir, si uno falla, los demas se ejecutan igual.
+         */
+        assertAll(
+                () -> {
+                    // verifico que de la cuenta2 se resten 500 pesos
+                    assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
+                },
+                () -> {
+                    // verifico a la cuenta1 se sumen 500 pesos
+                    assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
+                },
+                () -> {
+                    // verifico que el banco tenga 2 cuentas (cuenta1 y cuenta2)
+                    assertEquals(2, banco.getCuentas().size());
+                },
+                () -> {
+                    // verifico que el nombre del banco sea "Banco del Estado"
+                    assertEquals("Banco del Estado", cuenta1.getBanco().getNombre());
+                },
+                () -> {
+                    // verifico que el nombre de la cuenta1 sea "Andrés" con assertEquals
+                    assertEquals("Andrés", banco.getCuentas().stream()
+                            .filter(c -> c.getNombre().equals("Andrés"))
+                            .findFirst()
+                            .get()
+                            .getNombre());
+                },
+                () -> {
+                    // verifico que exista una cuenta con el nombre "Julian" con assertTrue
+                    assertTrue(banco.getCuentas().stream()
+                            .anyMatch(c -> c.getNombre().equals("Julian")));
+                }
+        );
     }
 }
