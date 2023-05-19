@@ -15,6 +15,33 @@ public class Cuenta {
     private String nombre;
     private BigDecimal saldo;
 
+
+    public void debito(BigDecimal monto) {
+        /*
+        * Como BigDecial es inmutable, no puedo hacer this.sado.subtract(monto)
+        * ya que el metodo subtract devuelve un nuevo objeto BigDecimal
+        * y no modifica el valor de this.saldo
+        *
+        * Por eso, tengo que asignar el valor devuelto por el metodo subtract
+        */
+        this.saldo = this.saldo.subtract(monto);
+    }
+
+    public void credito(BigDecimal monto) {
+        /*
+         * Como BigDecial es inmutable, no puedo hacer this.sado.add(monto)
+         * ya que el metodo subtract devuelve un nuevo objeto BigDecimal
+         * y no modifica el valor de this.saldo
+         *
+         * Por eso, tengo que asignar el valor devuelto por el metodo add
+         */
+        this.saldo = this.saldo.add(monto);
+    }
+
+
+
+
+
     /*
     * sobreescribo el metodo equals para que compare por atributos
     * y no por la direccion de memoria del objeto instanciado
