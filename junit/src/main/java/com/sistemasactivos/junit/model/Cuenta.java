@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 public class Cuenta {
     private String nombre;
     private BigDecimal saldo;
-
+    private Banco banco;
 
     public void debito(BigDecimal monto) {
         /*
@@ -44,9 +44,6 @@ public class Cuenta {
          */
         this.saldo = this.saldo.add(monto);
     }
-
-
-
 
     /*
     * sobreescribo el metodo equals para que compare por atributos

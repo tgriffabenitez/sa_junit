@@ -11,7 +11,9 @@ class CuentaTest {
 
     @Test
     void testNombreCuenta() {
-        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNombre("Andrés");
+
         String esperado = "Andrés";
         String real = cuenta.getNombre();
 
@@ -22,7 +24,8 @@ class CuentaTest {
 
     @Test
     void testSaldoCuenta() {
-        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta();
+        cuenta.setSaldo(new BigDecimal("1000.12345"));
 
         assertNotNull(cuenta.getSaldo());
         assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
@@ -32,8 +35,13 @@ class CuentaTest {
 
     @Test
     void testReferenciaCuenta() {
-        Cuenta cuenta1 = new Cuenta("John Doe", new BigDecimal("8900.9997"));
-        Cuenta cuenta2 = new Cuenta("John Doe", new BigDecimal("8900.9997"));
+        Cuenta cuenta1 = new Cuenta();
+        cuenta1.setNombre("Andrés");
+        cuenta1.setSaldo(new BigDecimal("1000.12345"));
+
+        Cuenta cuenta2 = new Cuenta();
+        cuenta2.setNombre("Andrés");
+        cuenta2.setSaldo(new BigDecimal("1000.12345"));
 
         /*
         * El metodo assertEquals(cuenta1, cuenta2) compara las direcciones de memoria de los
@@ -48,7 +56,9 @@ class CuentaTest {
 
     @Test
     void testDebitoCuenta() {
-        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNombre("Andrés");
+        cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.debito(new BigDecimal(100));
 
         assertNotNull(cuenta.getSaldo());
@@ -58,7 +68,9 @@ class CuentaTest {
 
     @Test
     void testCreditoCuenta() {
-        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNombre("Andrés");
+        cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.credito(new BigDecimal(100));
 
         assertNotNull(cuenta.getSaldo());
@@ -68,7 +80,9 @@ class CuentaTest {
 
     @Test
     void testDineroInsuficienteException() {
-        Cuenta cuenta = new Cuenta("Andrés", new BigDecimal("1000.12345"));
+        Cuenta cuenta = new Cuenta();
+        cuenta.setNombre("Andrés");
+        cuenta.setSaldo(new BigDecimal("1000.12345"));
 
         /*
         * El metodo assertThrows devuelve la excepcion que se espera que se lance, en este caso
@@ -83,5 +97,63 @@ class CuentaTest {
 
         // Comparo los mensajes del exception con el esperado
         assertEquals(esperado, actual);
+    }
+
+    @Test
+    void testTransferirDineroCuentas() {
+        Cuenta cuenta1 = new Cuenta();
+        cuenta1.setNombre("Andrés");
+        cuenta1.setSaldo(new BigDecimal("1000.5"));
+
+        Cuenta cuenta2 = new Cuenta();
+        cuenta2.setNombre("Julian");
+        cuenta2.setSaldo(new BigDecimal("9500.25"));
+
+        Banco banco = new Banco();
+        banco.setNombre("Banco del Estado");
+        banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
+
+        assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
+        assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
+    }
+
+    @Test
+    void testRelacionBancoCuentas() {
+        Cuenta cuenta1 = new Cuenta();
+        cuenta1.setNombre("Andrés");
+        cuenta1.setSaldo(new BigDecimal("1000.5"));
+
+        Cuenta cuenta2 = new Cuenta();
+        cuenta2.setNombre("Julian");
+        cuenta2.setSaldo(new BigDecimal("9500.25"));
+
+        Banco banco = new Banco();
+        banco.agregarCuenta(cuenta1);
+        banco.agregarCuenta(cuenta2);
+        banco.setNombre("Banco del Estado");
+
+        // tranfiero 500 de la cuenta2 a la cuenta1
+        banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
+
+        // verifico que de la cuenta2 se resten 500 y en la cuenta1 se sumen 500
+        assertEquals("9000.25", cuenta2.getSaldo().toPlainString());
+        assertEquals("1500.5", cuenta1.getSaldo().toPlainString());
+
+        // verifico que el banco tenga 2 cuentas (cuenta1 y cuenta2)
+        assertEquals(2, banco.getCuentas().size());
+
+        // verifico que el nombre del banco sea "Banco del Estado"
+        assertEquals("Banco del Estado", cuenta1.getBanco().getNombre());
+
+        // verifico que el nombre de la cuenta1 sea "Andrés" con assertEquals
+        assertEquals("Andrés", banco.getCuentas().stream()
+                .filter(c -> c.getNombre().equals("Andrés"))
+                .findFirst()
+                .get()
+                .getNombre());
+
+        // verifico que exista una cuenta con el nombre "Julian" con assertTrue
+        assertTrue(banco.getCuentas().stream()
+                .anyMatch(c -> c.getNombre().equals("Julian")));
     }
 }
