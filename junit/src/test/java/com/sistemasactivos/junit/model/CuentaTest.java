@@ -1,6 +1,8 @@
 package com.sistemasactivos.junit.model;
 
 import com.sistemasactivos.junit.exception.DineroInsuficienteException;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -9,7 +11,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CuentaTest {
 
+    /*
+     * Con la anotacion @DisplayName("nombre del test") se puede cambiar el nombre del test que aparece
+     * en la consola de ejecucion de los tests. Sirve para darle un nombre mas descriptivo al test.
+     *
+     * Con la anotacion @Disabled se puede deshabilitar un test, de esta forma, cuando se ejecuten los
+     * test, el que tenga esta anotacion va a ser salteado
+     */
+    @Disabled
     @Test
+    @DisplayName("Probando nombre de la cuenta")
     void testNombreCuenta() {
         Cuenta cuenta = new Cuenta();
         cuenta.setNombre("Andrés");
@@ -30,6 +41,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando el saldo de la cuenta")
     void testSaldoCuenta() {
         Cuenta cuenta = new Cuenta();
         cuenta.setSaldo(new BigDecimal("1000.12345"));
@@ -41,6 +53,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando referencia de la cuenta")
     void testReferenciaCuenta() {
         Cuenta cuenta1 = new Cuenta();
         cuenta1.setNombre("Andrés");
@@ -62,6 +75,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando el metodo debito de la cuenta")
     void testDebitoCuenta() {
         Cuenta cuenta = new Cuenta();
         cuenta.setNombre("Andrés");
@@ -74,6 +88,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando el metodo credito de la cuenta")
     void testCreditoCuenta() {
         Cuenta cuenta = new Cuenta();
         cuenta.setNombre("Andrés");
@@ -86,6 +101,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando el metodo debito de la cuenta con dinero insuficiente")
     void testDineroInsuficienteException() {
         Cuenta cuenta = new Cuenta();
         cuenta.setNombre("Andrés");
@@ -107,6 +123,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando el metodo transferir de la cuenta")
     void testTransferirDineroCuentas() {
         Cuenta cuenta1 = new Cuenta();
         cuenta1.setNombre("Andrés");
@@ -125,6 +142,7 @@ class CuentaTest {
     }
 
     @Test
+    @DisplayName("Probando relacion entre cuentas y banco")
     void testRelacionBancoCuentas() {
         Cuenta cuenta1 = new Cuenta();
         cuenta1.setNombre("Andrés");
