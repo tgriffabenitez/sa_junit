@@ -12,7 +12,7 @@ class CuentaTest {
     /*
      * Defino una variable global para que sea accesible desde todos los metodos
      */
-    Cuenta cuenta;
+    private Cuenta cuenta;
 
     /*
      * Como todos los metodos usan la variable cuenta, puedo inicializarla en el metodo setUp()
