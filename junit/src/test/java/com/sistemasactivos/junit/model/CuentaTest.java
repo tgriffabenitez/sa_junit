@@ -2,10 +2,14 @@ package com.sistemasactivos.junit.model;
 
 import com.sistemasactivos.junit.exception.DineroInsuficienteException;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumingThat;
 
 class CuentaTest {
 
@@ -209,5 +213,66 @@ class CuentaTest {
                             .anyMatch(c -> c.getNombre().equals("Julian")), () -> "No existe la cuenta de Julián en el banco");
                 }
         );
+    }
+
+    @Test
+    void imprimirVariablesAmbienteTest() {
+        // De esta forma puedo obtener todas las variables de ambiente del sistema
+        Map<String, String> getenv = System.getenv();
+        getenv.forEach((k, v) -> System.out.println(k + " = " + v));
+    }
+
+    @Test
+    @EnabledIfEnvironmentVariable(named = "JAVA_HOME", matches = ".*jdk-17.*")
+    void testJavaHome() {
+        /*
+         * Con la anotacion @EnabledIfEnvironmentVariable puedo habilitar o deshabilitar un test
+         * dependiendo de una variable de ambiente del sistema
+         */
+    }
+
+    /*
+     * Este test solo se ejecuta si la variable de ambiente ENV es igual a DEV. En caso contrario
+     * el test de deshabilita y no se ejecuta.
+     *
+     * El metodo assumeTrue() si es true, continua con la ejecucion del test, en caso contrario
+     * deshabilita los asserts que esten debajo de este metodo.
+     *
+     * Esto es util por ejemplo si queremos realizar un test y tenemos una varibale o alguna
+     * condicion que no dependa de nosotros, por ejemplo, el estado de un servidor.
+     */
+    @Test
+    @DisplayName("Probando el saldo de la cuenta en ambiente dev 1")
+    void testSaldoCuentaDev1() {
+        // me fijo si la variable de ambiente ENV es igual a DEV
+        boolean esDev = "dev".equals(System.getProperty("ENV"));
+
+        assumeTrue(esDev); // si esto falla no ejecuto lo de abajo
+        assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+        assertEquals(1000.12345, cuenta.getSaldo().doubleValue(), () -> "El saldo no es el esperado");
+        assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0, () -> "El saldo no puede ser negativo");
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0, () -> "El saldo debe ser mayor a cero");
+    }
+
+    @Test
+    @DisplayName("Probando el saldo de la cuenta en ambiente dev 2")
+    void testSaldoCuentaDev2() {
+        boolean esDev = "dev".equals(System.getProperty("ENV"));
+
+        /*
+        * Otra variante es usar assumingThat(condicion, ejecucion)
+        * Si la condicion se cumple, ejecuta lo que esta dentro del lambda, en caso contrario
+        * ejecuta los assert que esta debajo de este metodo.
+        *
+        * */
+        assumingThat(esDev, () -> {
+            assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+            assertEquals(1000.12345, cuenta.getSaldo().doubleValue(), () -> "El saldo no es el esperado");
+            assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0, () -> "El saldo no puede ser negativo");
+            assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0, () -> "El saldo debe ser mayor a");
+        });
+
+        // Si la condicion de arriba no se cumple ejecuta el resto de metodos
+        System.out.println("Dev " + esDev + " se ejecuto igual");
     }
 }
