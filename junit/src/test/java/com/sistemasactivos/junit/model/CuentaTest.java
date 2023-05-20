@@ -3,6 +3,8 @@ package com.sistemasactivos.junit.model;
 import com.sistemasactivos.junit.exception.DineroInsuficienteException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -138,8 +140,7 @@ class CuentaTest {
              * Otra variante es usar assumingThat(condicion, ejecucion)
              * Si la condicion se cumple, ejecuta lo que esta dentro del lambda, en caso contrario
              * ejecuta los assert que esta debajo de este metodo.
-             *
-             * */
+             */
             assumingThat(esDev, () -> {
                 assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
                 assertEquals(1000.12345, cuenta.getSaldo().doubleValue(), () -> "El saldo no es el esperado");
@@ -150,7 +151,6 @@ class CuentaTest {
             // Si la condicion de arriba no se cumple ejecuta el resto de metodos
             System.out.println("Dev " + esDev + " se ejecuto igual");
         }
-
     }
 
     @Nested
@@ -358,6 +358,22 @@ class CuentaTest {
             // Comparo los mensajes del exception con el esperado
             assertEquals(esperado, actual, () -> "El mensaje no es el esperado");
         }
+    }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"100", "200", "300", "500", "700", "1000"})
+    @DisplayName("Probando el metodo debito de la cuenta parametrizado")
+    void testDebitoCuentaParametrizado(String monto) {
+        /*
+         * El test parametrizado sirve para ejecutar el mismo test con diferentes parametros
+         * en este caso ejecuto el test con los montos 100, 200, 300, 500, 700 y 1000
+         *
+         * Los valores se pueden pasar desde la anotacion @ValueSource o desde un metodo
+         * que devuelva un Stream, por ejemplo un archivo CSV
+         */
+        cuenta.debito(new BigDecimal(monto));
+
+        assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
+        assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0, () -> "El saldo no es el esperado");
     }
 }
