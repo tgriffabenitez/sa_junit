@@ -35,6 +35,22 @@ class CuentaTest {
     }
 
     /*
+     * Este metodo se ejecuta al inicio de todos los test
+     */
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("Se ejecuta antes de todos los test");
+    }
+
+    /*
+     * Este metodo se ejecuta al finalizar todos los test
+     */
+    @AfterAll
+    static void afterAll() {
+        System.out.println("Se ejecuta despues de todos los test");
+    }
+
+    /*
      * Con la anotacion @DisplayName("nombre del test") se puede cambiar el nombre del test que aparece
      * en la consola de ejecucion de los tests. Sirve para darle un nombre mas descriptivo al test.
      *
