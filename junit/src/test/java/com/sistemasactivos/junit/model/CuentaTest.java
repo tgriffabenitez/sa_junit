@@ -1,15 +1,38 @@
 package com.sistemasactivos.junit.model;
 
 import com.sistemasactivos.junit.exception.DineroInsuficienteException;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CuentaTest {
+
+    /*
+     * Defino una variable global para que sea accesible desde todos los metodos
+     */
+    Cuenta cuenta;
+
+    /*
+     * Como todos los metodos usan la variable cuenta, puedo inicializarla en el metodo setUp()
+     * y de esta forma, no tengo que inicializarla en cada metodo. Este metodo se ejecuta antes
+     * de cada test.
+     */
+    @BeforeEach
+    void setUp() {
+        this.cuenta = new Cuenta();
+        cuenta.setNombre("Andrés");
+        cuenta.setSaldo(new BigDecimal("1000.12345"));
+    }
+
+    /*
+     * Este metodo se ejecuta al finalizar cada test
+     */
+    @AfterEach
+    void tearDown() {
+        // de momento no hace nada
+    }
 
     /*
      * Con la anotacion @DisplayName("nombre del test") se puede cambiar el nombre del test que aparece
@@ -22,9 +45,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando nombre de la cuenta")
     void testNombreCuenta() {
-        Cuenta cuenta = new Cuenta();
-        cuenta.setNombre("Andrés");
-
         String esperado = "Andrés";
         String real = cuenta.getNombre();
 
@@ -43,9 +63,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando el saldo de la cuenta")
     void testSaldoCuenta() {
-        Cuenta cuenta = new Cuenta();
-        cuenta.setSaldo(new BigDecimal("1000.12345"));
-
         assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
         assertEquals(1000.12345, cuenta.getSaldo().doubleValue(), () -> "El saldo no es el esperado");
         assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0, () -> "El saldo no puede ser negativo");
@@ -55,10 +72,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando referencia de la cuenta")
     void testReferenciaCuenta() {
-        Cuenta cuenta1 = new Cuenta();
-        cuenta1.setNombre("Andrés");
-        cuenta1.setSaldo(new BigDecimal("1000.12345"));
-
         Cuenta cuenta2 = new Cuenta();
         cuenta2.setNombre("Andrés");
         cuenta2.setSaldo(new BigDecimal("1000.12345"));
@@ -71,15 +84,12 @@ class CuentaTest {
          * el valor de los atributos, es decir: verifica que los nombres
          * y el saldo sean iguales. Es por eso que este metodo ahora devuelve True
          */
-        assertEquals(cuenta1, cuenta2, () -> "Las cuentas no son iguales");
+        assertEquals(cuenta, cuenta2, () -> "Las cuentas no son iguales");
     }
 
     @Test
     @DisplayName("Probando el metodo debito de la cuenta")
     void testDebitoCuenta() {
-        Cuenta cuenta = new Cuenta();
-        cuenta.setNombre("Andrés");
-        cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.debito(new BigDecimal(100));
 
         assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
@@ -90,9 +100,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando el metodo credito de la cuenta")
     void testCreditoCuenta() {
-        Cuenta cuenta = new Cuenta();
-        cuenta.setNombre("Andrés");
-        cuenta.setSaldo(new BigDecimal("1000.12345"));
         cuenta.credito(new BigDecimal(100));
 
         assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
@@ -103,9 +110,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando el metodo debito de la cuenta con dinero insuficiente")
     void testDineroInsuficienteException() {
-        Cuenta cuenta = new Cuenta();
-        cuenta.setNombre("Andrés");
-        cuenta.setSaldo(new BigDecimal("1000.12345"));
 
         /*
          * El metodo assertThrows devuelve la excepcion que se espera que se lance, en este caso
@@ -125,9 +129,7 @@ class CuentaTest {
     @Test
     @DisplayName("Probando el metodo transferir de la cuenta")
     void testTransferirDineroCuentas() {
-        Cuenta cuenta1 = new Cuenta();
-        cuenta1.setNombre("Andrés");
-        cuenta1.setSaldo(new BigDecimal("1000.5"));
+        cuenta.setSaldo(new BigDecimal("1000.5"));
 
         Cuenta cuenta2 = new Cuenta();
         cuenta2.setNombre("Julian");
@@ -135,30 +137,26 @@ class CuentaTest {
 
         Banco banco = new Banco();
         banco.setNombre("Banco del Estado");
-        banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
+        banco.transferir(cuenta2, cuenta, new BigDecimal(500));
 
         assertEquals("9000.25", cuenta2.getSaldo().toPlainString(), () -> "El saldo de la cuenta2 no es el esperado");
-        assertEquals("1500.5", cuenta1.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
+        assertEquals("1500.5", cuenta.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
     }
 
     @Test
     @DisplayName("Probando relacion entre cuentas y banco")
     void testRelacionBancoCuentas() {
-        Cuenta cuenta1 = new Cuenta();
-        cuenta1.setNombre("Andrés");
-        cuenta1.setSaldo(new BigDecimal("1000.5"));
-
         Cuenta cuenta2 = new Cuenta();
         cuenta2.setNombre("Julian");
         cuenta2.setSaldo(new BigDecimal("9500.25"));
 
         Banco banco = new Banco();
-        banco.agregarCuenta(cuenta1);
+        banco.agregarCuenta(cuenta);
         banco.agregarCuenta(cuenta2);
         banco.setNombre("Banco del Estado");
 
         // tranfiero 500 de la cuenta2 a la cuenta1
-        banco.transferir(cuenta2, cuenta1, new BigDecimal(500));
+        banco.transferir(cuenta2, cuenta, new BigDecimal(500));
 
         /*
          * Con el metodo assertAll() se ejecutan todos los asserts que estan dentro de este metodo
@@ -171,7 +169,7 @@ class CuentaTest {
                 },
                 () -> {
                     // verifico a la cuenta1 se sumen 500 pesos
-                    assertEquals("1500.5", cuenta1.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
+                    assertEquals("1500.12345", cuenta.getSaldo().toPlainString(), () -> "El saldo de la cuenta1 no es el esperado");
                 },
                 () -> {
                     // verifico que el banco tenga 2 cuentas (cuenta1 y cuenta2)
@@ -179,7 +177,7 @@ class CuentaTest {
                 },
                 () -> {
                     // verifico que el nombre del banco sea "Banco del Estado"
-                    assertEquals("Banco del Estado", cuenta1.getBanco().getNombre(), () -> "El nombre del banco no es el esperado");
+                    assertEquals("Banco del Estado", cuenta.getBanco().getNombre(), () -> "El nombre del banco no es el esperado");
                 },
                 () -> {
                     // verifico que el nombre de la cuenta1 sea "Andrés" con assertEquals
