@@ -49,9 +49,19 @@ class CuentaTest {
     }
 
     @Nested
+    @Tag("tag1")
     @DisplayName("Probando metodos relacionados con el nombre y el saldo")
     class CuentaTestNombreSaldo {
         /* Dentro de cada clase anidada, puedo definir metodos @BeforeEach y @AfterEach */
+
+        /*
+         * Con la anotacion @Tag sirve para ordenar las clases o metodos a la hora de ejecutarlas.
+         * Por ejemplo, puedo ejecutar todas la clases y/o metodos que tengan el tag("tag1"). Las
+         * clases y metodos pueden tener varios tags.
+         *
+         * Para ejecutar los test con tags, tengo que ir a la configuracion del intelli y elegir
+         * la opcion "Build and run" y elegir Tags en vez de Class
+         */
 
         @Disabled
         @Test
@@ -81,6 +91,8 @@ class CuentaTest {
         }
 
         @Test
+        @Tag("tag1")
+        @Tag("tag2")
         @DisplayName("Probando el saldo de la cuenta")
         void testSaldoCuenta() {
             assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
@@ -90,6 +102,7 @@ class CuentaTest {
         }
 
         @Test
+        @Tag("tag3")
         @DisplayName("Probando referencia de la cuenta")
         void testReferenciaCuenta() {
             Cuenta cuenta2 = new Cuenta();
