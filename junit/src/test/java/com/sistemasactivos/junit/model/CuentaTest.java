@@ -7,7 +7,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -389,4 +391,36 @@ class CuentaTest {
         assertNotNull(cuenta.getSaldo(), () -> "El saldo no puede ser nulo");
         assertTrue(cuenta.getSaldo().compareTo(BigDecimal.ZERO) > 0, () -> "El saldo no es el esperado");
     }
+
+    @Nested
+    @DisplayName("Probando metodos relacionados con el tiempo")
+    class TimeOutTest {
+        @Test
+        @DisplayName("Probando el timeout")
+        @Timeout(value = 500, unit = TimeUnit.MILLISECONDS)
+            // 500 milisegundos
+        void testTimeOut1() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(2);
+        }
+
+        @Test
+        @DisplayName("Probando el timeout")
+        @Timeout(value = 2, unit = TimeUnit.SECONDS)
+            // 2 segundos
+        void testTimeOut2() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(1);
+        }
+
+        @Test
+        void testTimeOutAssertion() {
+            /*
+             * Si el numero es mayor al primer parametro del metodo assertTimeout()
+             * el metodo falla
+             */
+            assertTimeout(Duration.ofSeconds(2), () -> {
+                TimeUnit.SECONDS.sleep(1);
+            });
+        }
+    }
+
 }
